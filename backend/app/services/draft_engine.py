@@ -1,4 +1,4 @@
-from backend.app.models.draft_model import DraftPick, DraftState, TeamRoster
+from app.models.draft_model import DraftPick, DraftState, TeamRoster
 
 
 class DraftEngine:

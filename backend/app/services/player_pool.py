@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from backend.app.models.player_model import Player
+from app.models.player_model import Player
 
 PLAYERS_PATH = Path(__file__).resolve().parent.parent / "data" / "players.json"
 
