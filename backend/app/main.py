@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import drafts
-from app.api.integrations.sleeper import sync_user
+from app.api.integrations.sleeper import sync_user, sleeper_connection
 from app.core.dependencies import player_pool_service
 
 app = FastAPI(title="War Room API")
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(drafts.router)
 app.include_router(sync_user.router)
+app.include_router(sleeper_connection.router)
 
 
 @app.get("/")

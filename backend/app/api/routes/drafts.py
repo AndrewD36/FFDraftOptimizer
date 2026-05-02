@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from uuid import uuid4
-from app.core.dependencies import player_pool_service
+from app.core.dependencies import player_pool_service, draft_repo, sleeper_sync_service
 from app.schemas.draft import CreateDraftRequest, MakePickRequest
 from app.services.draft_engine import DraftEngine
 
@@ -65,3 +65,27 @@ def make_pick(draft_id: str, req: MakePickRequest):
     draft_store[draft_id] = updated_draft
     return updated_draft
 
+@router.get("/{local_draft_id}")
+def get_imported_draft(local_draft_id: str):
+    """
+    Frontend draft room can call this to render current imported draft snapshot.
+    """
+    draft = draft_repo.get(local_draft_id)
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found.")
+    return draft
+
+
+@router.post("/{local_draft_id}/sync")
+def sync_imported_draft(local_draft_id: str):
+    """
+    Frontend can call this every 2-5 seconds during the live draft.
+    """
+    try:
+        updated = sleeper_sync_service.sync_draft(local_draft_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return updated
