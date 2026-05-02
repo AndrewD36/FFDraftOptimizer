@@ -1,0 +1,58 @@
+import type { Player } from "../types/player";
+
+export const mockPlayers: Player[] = [
+  {
+    id: "p1",
+    fullName: "Ja'Marr Chase",
+    position: "WR",
+    nflTeam: "CIN",
+    projectedPoints: 295.4,
+    adp: 1.8,
+    tier: 1,
+  },
+  {
+    id: "p2",
+    fullName: "Bijan Robinson",
+    position: "RB",
+    nflTeam: "ATL",
+    projectedPoints: 288.1,
+    adp: 3.2,
+    tier: 1,
+  },
+  {
+    id: "p3",
+    fullName: "Justin Jefferson",
+    position: "WR",
+    nflTeam: "MIN",
+    projectedPoints: 282.7,
+    adp: 4.1,
+    tier: 1,
+  },
+  {
+    id: "p4",
+    fullName: "Josh Allen",
+    position: "QB",
+    nflTeam: "BUF",
+    projectedPoints: 370.8,
+    adp: 21.6,
+    tier: 1,
+  },
+  {
+    id: "p5",
+    fullName: "Breece Hall",
+    position: "RB",
+    nflTeam: "NYJ",
+    projectedPoints: 262.3,
+    adp: 9.4,
+    tier: 2,
+  },
+  {
+    id: "p6",
+    fullName: "Amon-Ra St. Brown",
+    position: "WR",
+    nflTeam: "DET",
+    projectedPoints: 270.5,
+    adp: 7.8,
+    tier: 2,
+  },
+];
