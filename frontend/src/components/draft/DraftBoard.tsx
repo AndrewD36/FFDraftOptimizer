@@ -9,9 +9,13 @@ export function DraftBoard({ picks }: DraftBoardProps) {
     <section className="rounded-xl border bg-white p-6 shadow-sm">
       <h2 className="text-xl font-semibold">Draft Board</h2>
 
+      <p className="mt-1 text-sm text-gray-500">
+        Updates from the draft feed. In live mode, this comes from Sleeper.
+      </p>
+
       <div className="mt-4 space-y-3">
         {picks.length === 0 ? (
-          <p className="text-sm text-gray-500">No draft picks yet.</p>
+          <p className="text-sm text-gray-500">No picks yet.</p>
         ) : (
           picks.map((pick) => (
             <div key={pick.pickNumber} className="rounded-lg border p-4">

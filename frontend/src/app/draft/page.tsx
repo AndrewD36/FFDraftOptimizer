@@ -1,20 +1,70 @@
 "use client";
 
 import { useState } from "react";
-import { AvailablePlayersTable } from "@/components/draft/AvailablePlayersTable";
 import { DraftBoard } from "@/components/draft/DraftBoard";
+import { DraftRoomHeader } from "@/components/draft/DraftRoomHeader";
+import { PlayerPoolTable } from "@/components/draft/PlayerPoolTable";
 import { RecommendationPanel } from "@/components/draft/RecommendationPanel";
-import { TeamRosterPanel } from "@/components/draft/TeamRosterPanel";
 import { SleeperImportPanel } from "@/components/draft/SleeperImportPanel";
+import { TeamRosterPanel } from "@/components/draft/TeamRosterPanel";
 import { mockPlayers } from "@/lib/mock/players";
+import { mockRecommendations } from "@/lib/mock/recommendations";
+import type {
+  DraftMode,
+  DraftPick,
+  DraftRoomState,
+} from "@/lib/types/draft";
 import type { Player } from "@/lib/types/player";
-import type { DraftPick } from "@/lib/types/draft";
 
 export default function DraftPage() {
-  const [availablePlayers, setAvailablePlayers] = useState<Player[]>(mockPlayers);
+  const [mode, setMode] = useState<DraftMode>("mock");
+
+  const [availablePlayers, setAvailablePlayers] =
+    useState<Player[]>(mockPlayers);
+
   const [picks, setPicks] = useState<DraftPick[]>([]);
 
-  function draftPlayer(player: Player) {
+  const [pinnedPlayerIds, setPinnedPlayerIds] = useState<string[]>([]);
+  const [ignoredPlayerIds, setIgnoredPlayerIds] = useState<string[]>([]);
+  const [comparedPlayerIds, setComparedPlayerIds] = useState<string[]>([]);
+
+  const draftRoomState: DraftRoomState = {
+    mode,
+    draft: {
+      draftId: mode === "live" ? undefined : "mock-draft",
+      status: picks.length === 0 ? "pre_draft" : "drafting",
+      currentPick: picks.length + 1,
+      currentRound: Math.ceil((picks.length + 1) / 12),
+      currentRosterId: 1,
+    },
+    user: {
+      sleeperUserId: "mock-user",
+      rosterId: 1,
+      teamName: "My Team",
+    },
+    picks,
+    rosters: [
+      {
+        rosterId: 1,
+        teamName: "My Team",
+        picks,
+      },
+    ],
+    availablePlayers,
+    recommendations: mockRecommendations.filter((recommendation) =>
+      availablePlayers.some((player) => player.id === recommendation.playerId)
+    ),
+  };
+
+  const recommendedPlayerIds = draftRoomState.recommendations.map(
+    (recommendation) => recommendation.playerId
+  );
+
+  function simulatePick(player: Player) {
+    if (mode !== "mock") {
+      return;
+    }
+
     const nextPickNumber = picks.length + 1;
 
     const newPick: DraftPick = {
@@ -24,41 +74,89 @@ export default function DraftPage() {
       player,
     };
 
-    setPicks([...picks, newPick]);
+    setPicks((previousPicks) => [...previousPicks, newPick]);
 
-    setAvailablePlayers(
-      availablePlayers.filter((availablePlayer) => {
+    setAvailablePlayers((previousPlayers) =>
+      previousPlayers.filter((availablePlayer) => {
         return availablePlayer.id !== player.id;
       })
     );
   }
 
+  function togglePinnedPlayer(playerId: string) {
+    setPinnedPlayerIds((previousIds) => {
+      if (previousIds.includes(playerId)) {
+        return previousIds.filter((id) => id !== playerId);
+      }
+
+      return [...previousIds, playerId];
+    });
+  }
+
+  function toggleIgnoredPlayer(playerId: string) {
+    setIgnoredPlayerIds((previousIds) => {
+      if (previousIds.includes(playerId)) {
+        return previousIds.filter((id) => id !== playerId);
+      }
+
+      return [...previousIds, playerId];
+    });
+  }
+
+  function toggleComparedPlayer(playerId: string) {
+    setComparedPlayerIds((previousIds) => {
+      if (previousIds.includes(playerId)) {
+        return previousIds.filter((id) => id !== playerId);
+      }
+
+      return [...previousIds, playerId];
+    });
+  }
+
+  function handleChangeMode(nextMode: DraftMode) {
+    setMode(nextMode);
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 p-8">
-        
-      <h1 className="text-3xl font-bold">Draft Room</h1>
+      <div className="space-y-6">
+        <DraftRoomHeader
+          mode={mode}
+          draftRoomState={draftRoomState}
+          onChangeMode={handleChangeMode}
+        />
 
-      <p className="mt-2 text-gray-600">
-        Prototype draft room using mock player data.
-      </p>
+        {mode === "live" && <SleeperImportPanel />}
 
-      <section className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-            <SleeperImportPanel />
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <DraftBoard picks={draftRoomState.picks} />
 
-            <DraftBoard picks={picks} />
-
-            <AvailablePlayersTable
-                players={availablePlayers}
-                onDraftPlayer={draftPlayer}
+            <PlayerPoolTable
+              mode={mode}
+              players={draftRoomState.availablePlayers}
+              pinnedPlayerIds={pinnedPlayerIds}
+              ignoredPlayerIds={ignoredPlayerIds}
+              comparedPlayerIds={comparedPlayerIds}
+              recommendedPlayerIds={recommendedPlayerIds}
+              onSimulatePick={simulatePick}
+              onPinPlayer={togglePinnedPlayer}
+              onIgnorePlayer={toggleIgnoredPlayer}
+              onComparePlayer={toggleComparedPlayer}
             />
-        </div>
+          </div>
 
-        <div className="space-y-6">
-          <RecommendationPanel players={availablePlayers} />
-          <TeamRosterPanel picks={picks} />
-        </div>
-      </section>
+          <div className="space-y-6">
+            <RecommendationPanel
+              recommendations={draftRoomState.recommendations}
+              onPinPlayer={togglePinnedPlayer}
+              onComparePlayer={toggleComparedPlayer}
+            />
+
+            <TeamRosterPanel picks={draftRoomState.picks} />
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

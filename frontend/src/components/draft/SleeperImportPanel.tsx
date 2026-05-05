@@ -1,33 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { getSleeperUser } from "@/lib/api/sleeper";
 
 export function SleeperImportPanel() {
   const [username, setUsername] = useState("");
   const [status, setStatus] = useState<string | null>(null);
 
-  async function handleImport() {
-    try {
-      setStatus("Loading Sleeper user...");
-
-      const user = await getSleeperUser(username);
-
-      console.log("Sleeper user:", user);
-
-      setStatus(`Loaded user: ${user.display_name ?? user.username}`);
-    } catch (error) {
-      console.error(error);
-      setStatus("Failed to load Sleeper user.");
-    }
+  function handleImport() {
+    setStatus(`Loading leagues for ${username}...`);
   }
 
   return (
     <section className="rounded-xl border bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-semibold">Import Sleeper League</h2>
+      <h2 className="text-xl font-semibold">Connect Sleeper Draft</h2>
 
       <p className="mt-2 text-sm text-gray-500">
-        Enter a Sleeper username to load leagues and draft data.
+        Enter your Sleeper username to load leagues and watch your draft from
+        this companion dashboard.
       </p>
 
       <div className="mt-4 flex gap-3">
@@ -42,7 +31,7 @@ export function SleeperImportPanel() {
           onClick={handleImport}
           className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
         >
-          Import
+          Load Leagues
         </button>
       </div>
 
