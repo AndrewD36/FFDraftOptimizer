@@ -1,8 +1,12 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
+from position_model import Position
 
 
-class Player(BaseModel):
-    id: str
+@dataclass(frozen=True)
+class Player:
+    player_id: str
     name: str
-    position: str
-    team: str | None = None
+    position: Position
+    projected_points: float
+    adp: float
+    tier: int
